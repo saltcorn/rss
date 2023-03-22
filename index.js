@@ -2,7 +2,7 @@ const { features } = require("@saltcorn/data/db/state");
 const Workflow = require("@saltcorn/data/models/workflow");
 const Form = require("@saltcorn/data/models/form");
 const { json_list_to_external_table } = require("@saltcorn/data/plugin-helper");
-let Parser = require("rss-parser");
+const Parser = require("rss-parser");
 
 const configuration_workflow = () =>
   new Workflow({
@@ -31,17 +31,19 @@ module.exports = {
   table_providers: {
     rss: {
       configuration_workflow,
-      get_table: async (cfg) => {
+      get_table: (cfg) => {
         if (!cfg?.url) return null;
-        const parser = new Parser();
-        const feed = await parser.parseURL(cfg.url);
-        return json_list_to_external_table(
-          () => feed,
-          [
+
+        return {
+          getRows: async () => {
+            const parser = new Parser();
+            return await parser.parseURL(cfg.url);
+          },
+          fields: [
             { name: "title", label: "Title", type: "String" },
             { name: "link", label: "Link", type: "String" },
-          ]
-        );
+          ],
+        };
       },
     },
   },
