@@ -29,13 +29,12 @@ module.exports = {
   sc_plugin_api_version: 1,
   plugin_name: "rss",
   table_providers: {
-    rss: {
+    "RSS feed": {
       configuration_workflow,
       get_table: (cfg) => {
-        if (!cfg?.url) return null;
-
         return {
           getRows: async () => {
+            if (!cfg?.url) return [];
             const parser = new Parser();
             return await parser.parseURL(cfg.url);
           },
